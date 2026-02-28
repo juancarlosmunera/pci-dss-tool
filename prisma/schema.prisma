@@ -1,0 +1,297 @@
+// PCI DSS v4.0.1 Compliance Platform — Prisma Schema
+// Defined Approach Only
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Auth & Users  (NextAuth.js v5 + Azure Entra ID)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  image         String?
+  entraObjectId String?        @unique  // Azure Entra object ID (oid claim)
+  department    String?
+  jobTitle      String?
+  // Roles are sourced from the Azure AD App Roles claim in the JWT at each login.
+  // Updated by SCIM provisioning and by the signIn callback.
+  platformRoles PlatformRole[]
+  isActive      Boolean        @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  accounts           Account[]
+  sessions           Session[]
+  domainAssignments  DomainAssignment[]
+  createdAssessments Assessment[]     @relation("AssessmentCreatedBy")
+  controlledItems    AssessmentItem[] @relation("ControlOwner")
+  operatedItems      AssessmentItem[] @relation("Operator")
+  uploadedEvidence   Evidence[]
+  auditLogs          AuditLog[]
+
+  @@index([email])
+}
+
+// NextAuth standard models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum PlatformRole {
+  ADMIN
+  CONTROL_OWNER
+  OPERATOR
+  VIEWER
+}
+
+// Per-domain role assignment.  A user can own Domain A and operate on Domain B.
+model DomainAssignment {
+  id         String       @id @default(cuid())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  domain     String       // must match one of the 6 Requirement.domain values
+  role       PlatformRole
+  assignedBy String       // userId of admin who created this assignment
+  createdAt  DateTime     @default(now())
+
+  @@unique([userId, domain, role])
+  @@index([domain])
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Integrations
+// ─────────────────────────────────────────────────────────────────────────────
+
+// One config row per integration.  provider = "servicenow" for now.
+model IntegrationConfig {
+  id            String   @id @default(cuid())
+  provider      String   @unique
+  instanceUrl   String
+  authMethod    String              // "basic" | "oauth"
+  credentials   Json                // { username, password } or { clientId, clientSecret }
+  settings      Json                // { table, assignmentGroup, customFields, stateMap }
+  isEnabled     Boolean  @default(false)
+  webhookSecret String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// One ServiceNow incident per AssessmentItem (auto-created on NON_COMPLIANT status)
+model ServiceNowTicket {
+  id               String   @id @default(cuid())
+  assessmentItemId String   @unique
+  ticketNumber     String            // "INC0012345"
+  ticketSysId      String   @unique  // SN sys_id for REST API calls
+  ticketUrl        String?
+  snState          String            // raw SN state label
+  snResolvedAt     DateTime?
+  snWorkNotes      String   @default("")
+  lastSyncedAt     DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  assessmentItem AssessmentItem @relation(fields: [assessmentItemId], references: [id], onDelete: Cascade)
+
+  @@index([ticketSysId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PCI DSS Requirements  (reference data, populated by seed)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Requirement {
+  id           String  @id @default(cuid())
+  number       String  @unique // "1", "1.1", "1.1.1"
+  title        String
+  level        Int             // 1=principal, 2=section, 3=sub-req, 4=sub-sub
+  domain       String          // one of the 6 PCI DSS domains
+  parentNumber String?
+
+  parent   Requirement?  @relation("RequirementHierarchy", fields: [parentNumber], references: [number])
+  children Requirement[] @relation("RequirementHierarchy")
+
+  requirementText    String @default("")
+  applicabilityNotes String @default("")
+
+  guidancePurpose            String @default("")
+  guidanceGoodPractice       String @default("")
+  guidanceDefinitions        String @default("")
+  guidanceExamples           String @default("")
+  guidanceFurtherInformation String @default("")
+
+  testingProcedures TestingProcedure[]
+  assessmentItems   AssessmentItem[]
+
+  createdAt DateTime @default(now())
+
+  @@index([parentNumber])
+  @@index([level])
+  @@index([domain])
+}
+
+model TestingProcedure {
+  id                String @id @default(cuid())
+  procedureId       String @unique
+  requirementNumber String
+
+  requirement Requirement @relation(fields: [requirementNumber], references: [number])
+
+  text      String
+  createdAt DateTime @default(now())
+
+  @@index([requirementNumber])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Assessment Workflow
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Assessment {
+  id          String           @id @default(cuid())
+  name        String
+  description String           @default("")
+  scope       String           @default("")
+  status      AssessmentStatus @default(NOT_STARTED)
+  targetDate  DateTime?
+  createdById String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  createdBy User             @relation("AssessmentCreatedBy", fields: [createdById], references: [id])
+  items     AssessmentItem[]
+  evidence  Evidence[]
+}
+
+model AssessmentItem {
+  id                String           @id @default(cuid())
+  assessmentId      String
+  requirementNumber String
+  status            ComplianceStatus @default(NOT_STARTED)
+  controlOwnerId    String?
+  operatorId        String?
+  notes             String           @default("")
+  lastReviewed      DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  assessment   Assessment        @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  requirement  Requirement       @relation(fields: [requirementNumber], references: [number])
+  controlOwner User?             @relation("ControlOwner", fields: [controlOwnerId], references: [id])
+  operator     User?             @relation("Operator", fields: [operatorId], references: [id])
+  evidence     Evidence[]
+  history      AuditLog[]
+  serviceNow   ServiceNowTicket?
+
+  @@unique([assessmentId, requirementNumber])
+  @@index([assessmentId])
+  @@index([status])
+  @@index([controlOwnerId])
+  @@index([operatorId])
+}
+
+model Evidence {
+  id               String   @id @default(cuid())
+  assessmentId     String
+  assessmentItemId String?
+  fileName         String
+  filePath         String   // Azure Blob Storage URL (or local path for dev)
+  fileSize         Int
+  mimeType         String
+  sourceType       String   @default("")
+  collectorVersion String   @default("")
+  manifest         Json?
+  collectedAt      DateTime @default(now())
+  uploadedById     String
+  createdAt        DateTime @default(now())
+
+  assessment     Assessment      @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  assessmentItem AssessmentItem? @relation(fields: [assessmentItemId], references: [id])
+  uploadedBy     User            @relation(fields: [uploadedById], references: [id])
+
+  @@index([assessmentId])
+  @@index([assessmentItemId])
+}
+
+model AuditLog {
+  id               String   @id @default(cuid())
+  assessmentItemId String
+  action           String
+  oldValue         String?
+  newValue         String?
+  userId           String
+  reason           String   @default("")
+  sourceSystem     String   @default("platform") // "platform" | "servicenow"
+  createdAt        DateTime @default(now())
+
+  assessmentItem AssessmentItem @relation(fields: [assessmentItemId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id])
+
+  @@index([assessmentItemId])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum AssessmentStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  UNDER_REVIEW
+  COMPLETED
+  ARCHIVED
+}
+
+enum ComplianceStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  EVIDENCE_COLLECTED
+  UNDER_REVIEW
+  COMPLIANT
+  NON_COMPLIANT
+  NOT_APPLICABLE
+  COMPENSATING_CONTROL
+}
