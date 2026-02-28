@@ -1,0 +1,3 @@
+[submodule "packages/evidence-collectors"]
+	path = packages/evidence-collectors
+	url = https://github.com/juancarlosmunera/pci-tools.git
