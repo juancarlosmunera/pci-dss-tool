@@ -1,19 +1,20 @@
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { auth } from "@/lib/mock-auth";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlatformRole } from "@prisma/client";
-import { Users, Search, ChevronRight } from "lucide-react";
+import { Users, Search, ChevronRight, UserPlus } from "lucide-react";
+import { createLocalAdmin } from "./[id]/actions";
 import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Admin — Users" };
 
 const ROLE_COLORS: Record<PlatformRole, string> = {
   ADMIN: "bg-red-100 text-red-700 border-red-200",
-  CONTROL_OWNER: "bg-blue-100 text-blue-700 border-blue-200",
+  CONTROL_OWNER: "bg-slate-100 text-slate-600 border-slate-200",
   OPERATOR: "bg-green-100 text-green-700 border-green-200",
   VIEWER: "bg-slate-100 text-slate-600 border-slate-200",
 };
@@ -48,7 +49,7 @@ export default async function AdminUsersPage({
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             <Users className="h-6 w-6" /> Users
@@ -57,6 +58,36 @@ export default async function AdminUsersPage({
             {users.length} user{users.length !== 1 ? "s" : ""} found
           </p>
         </div>
+
+        {/* Create Local Admin */}
+        <details className="relative">
+          <summary className="list-none cursor-pointer">
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <UserPlus className="h-4 w-4" /> Create Local Admin
+            </Button>
+          </summary>
+          <div className="absolute right-0 top-10 z-10 bg-white border border-slate-200 rounded-xl shadow-lg p-5 w-80">
+            <h3 className="text-sm font-semibold text-slate-800 mb-3">New Local Admin Account</h3>
+            <form action={createLocalAdmin} className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-slate-600 mb-1 block">Email</label>
+                <input name="email" type="email" required placeholder="admin@example.com"
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-600 mb-1 block">Name</label>
+                <input name="name" type="text" placeholder="Admin Name"
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-600 mb-1 block">Password (min 8 chars)</label>
+                <input name="password" type="password" required minLength={8}
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+              </div>
+              <Button type="submit" className="w-full">Create</Button>
+            </form>
+          </div>
+        </details>
       </div>
 
       {/* Search */}

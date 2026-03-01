@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { auth } from "@/lib/mock-auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +37,7 @@ export default async function ServiceNowSettingsPage() {
       {/* Status Banner */}
       <div className="mb-6 flex items-center gap-3 p-4 rounded-lg border bg-slate-50">
         {config?.isEnabled ? (
-          <CheckCircle className="h-5 w-5 text-green-500 shrink-0" />
+          <CheckCircle className="h-5 w-5 text-slate-500 shrink-0" />
         ) : (
           <XCircle className="h-5 w-5 text-slate-400 shrink-0" />
         )}
@@ -219,7 +219,7 @@ export default async function ServiceNowSettingsPage() {
                 name="isEnabled"
                 id="isEnabled"
                 defaultChecked={config?.isEnabled ?? false}
-                className="h-4 w-4 rounded border-gray-300 text-blue-600"
+                className="h-4 w-4 rounded border-gray-300 text-slate-700"
               />
               <label
                 htmlFor="isEnabled"

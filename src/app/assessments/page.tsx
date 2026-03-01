@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { auth } from "@/lib/mock-auth";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,8 +12,8 @@ export const metadata = { title: "Assessments" };
 
 const STATUS_COLORS: Record<AssessmentStatus, string> = {
   NOT_STARTED: "bg-slate-100 text-slate-600 border-slate-200",
-  IN_PROGRESS: "bg-blue-100 text-blue-700 border-blue-200",
-  UNDER_REVIEW: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  IN_PROGRESS: "bg-slate-100 text-slate-600 border-slate-200",
+  UNDER_REVIEW: "bg-slate-100 text-slate-600 border-slate-200",
   COMPLETED: "bg-green-100 text-green-700 border-green-200",
   ARCHIVED: "bg-slate-100 text-slate-500 border-slate-200",
 };

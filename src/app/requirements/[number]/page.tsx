@@ -95,7 +95,7 @@ function SubRequirementBlock({ req, depth = 0 }: { req: SubReq; depth?: number }
             {req.number}
           </span>
           <p
-            className={`text-sm leading-relaxed text-slate-800 ${
+            className={`text-sm leading-relaxed text-slate-800 whitespace-pre-wrap ${
               depth === 0 ? "font-semibold" : "font-normal"
             }`}
           >
@@ -119,8 +119,8 @@ function SubRequirementBlock({ req, depth = 0 }: { req: SubReq; depth?: number }
       {req.testingProcedures.length > 0 && (
         <div className="ml-[3.5rem] mb-4">
           <div className="flex items-center gap-1.5 mb-2">
-            <FlaskConical className="h-3.5 w-3.5 text-blue-500" />
-            <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
+            <FlaskConical className="h-3.5 w-3.5 text-slate-400" />
+            <span className="text-xs font-semibold text-slate-700 uppercase tracking-wide">
               Testing Procedures
             </span>
           </div>
@@ -130,7 +130,7 @@ function SubRequirementBlock({ req, depth = 0 }: { req: SubReq; depth?: number }
                 key={tp.id}
                 className="flex gap-2.5 bg-blue-50 border border-blue-100 rounded-md px-3 py-2.5"
               >
-                <span className="text-xs font-bold text-blue-600 flex-shrink-0 font-mono mt-0.5">
+                <span className="text-xs font-bold text-slate-700 flex-shrink-0 font-mono mt-0.5">
                   {tp.procedureId}
                 </span>
                 <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">

@@ -4,13 +4,13 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Search, ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface Section {
   number: string;
   title: string;
   childCount: number;
+  childTitles?: string[];
 }
 
 interface PrincipalReq {
@@ -24,48 +24,11 @@ interface RequirementsBrowserProps {
   data: PrincipalReq[];
 }
 
-const DOMAIN_COLORS: Record<string, { header: string; badge: string; link: string }> = {
-  "Build and Maintain a Secure Network and Systems": {
-    header: "bg-blue-50 border-blue-200",
-    badge: "bg-blue-100 text-blue-800 border-blue-200",
-    link: "hover:bg-blue-50 border-blue-100",
-  },
-  "Protect Account Data": {
-    header: "bg-purple-50 border-purple-200",
-    badge: "bg-purple-100 text-purple-800 border-purple-200",
-    link: "hover:bg-purple-50 border-purple-100",
-  },
-  "Maintain a Vulnerability Management Program": {
-    header: "bg-orange-50 border-orange-200",
-    badge: "bg-orange-100 text-orange-800 border-orange-200",
-    link: "hover:bg-orange-50 border-orange-100",
-  },
-  "Implement Strong Access Control Measures": {
-    header: "bg-green-50 border-green-200",
-    badge: "bg-green-100 text-green-800 border-green-200",
-    link: "hover:bg-green-50 border-green-100",
-  },
-  "Regularly Monitor and Test Networks": {
-    header: "bg-yellow-50 border-yellow-200",
-    badge: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    link: "hover:bg-yellow-50 border-yellow-100",
-  },
-  "Maintain an Information Security Policy": {
-    header: "bg-red-50 border-red-200",
-    badge: "bg-red-100 text-red-800 border-red-200",
-    link: "hover:bg-red-50 border-red-100",
-  },
+const NEUTRAL = {
+  header: "bg-slate-50 border-slate-200",
+  badge: "bg-slate-100 text-slate-700 border-slate-200",
+  link: "hover:bg-slate-50 border-slate-200",
 };
-
-function getColors(domain: string) {
-  return (
-    DOMAIN_COLORS[domain] ?? {
-      header: "bg-gray-50 border-gray-200",
-      badge: "bg-gray-100 text-gray-700 border-gray-200",
-      link: "hover:bg-gray-50 border-gray-100",
-    }
-  );
-}
 
 function RequirementCard({
   req,
@@ -75,7 +38,6 @@ function RequirementCard({
   defaultOpen: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
-  const colors = getColors(req.domain);
 
   return (
     <div className="border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm">
@@ -84,7 +46,7 @@ function RequirementCard({
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "w-full flex items-start gap-3 p-4 text-left transition-colors",
-          isOpen ? colors.header : "hover:bg-slate-50"
+          isOpen ? NEUTRAL.header : "hover:bg-slate-50"
         )}
       >
         <span className="mt-0.5 text-slate-400 flex-shrink-0">
@@ -102,7 +64,7 @@ function RequirementCard({
             <span
               className={cn(
                 "text-xs px-2 py-0.5 rounded-full border font-medium",
-                colors.badge
+                NEUTRAL.badge
               )}
             >
               {req.sections.length} sections
@@ -123,7 +85,7 @@ function RequirementCard({
               href={`/requirements/${section.number}`}
               className={cn(
                 "flex items-start gap-3 px-4 py-3 border-l-4 border-transparent transition-colors group",
-                colors.link
+                NEUTRAL.link
               )}
             >
               <span className="text-xs font-bold text-slate-400 mt-0.5 w-10 flex-shrink-0">
@@ -167,7 +129,8 @@ export function RequirementsBrowser({ data }: RequirementsBrowserProps) {
         const matchedSections = req.sections.filter(
           (s) =>
             s.number.toLowerCase().includes(q) ||
-            s.title.toLowerCase().includes(q)
+            s.title.toLowerCase().includes(q) ||
+            s.childTitles?.some((t) => t.toLowerCase().includes(q))
         );
 
         if (principalMatch) return req;
@@ -223,14 +186,13 @@ export function RequirementsBrowser({ data }: RequirementsBrowserProps) {
       {/* Requirements grouped by domain */}
       <div className="space-y-8">
         {Object.entries(byDomain).map(([domain, reqs]) => {
-          const colors = getColors(domain);
           return (
             <div key={domain}>
               <div className="flex items-center gap-2 mb-3">
                 <span
                   className={cn(
                     "text-xs font-semibold px-3 py-1 rounded-full border",
-                    colors.badge
+                    NEUTRAL.badge
                   )}
                 >
                   {domain}

@@ -6,9 +6,8 @@ export const metadata = {
 };
 
 async function getRequirementsTree() {
-  // Fetch all level-1 and level-2 requirements in one query
   const all = await prisma.requirement.findMany({
-    where: { level: { in: [1, 2] } },
+    where: { level: { in: [1, 2, 3, 4] } },
     orderBy: { number: "asc" },
     select: {
       number: true,
@@ -20,9 +19,30 @@ async function getRequirementsTree() {
     },
   });
 
-  // Build hierarchy
   const principals = all.filter((r) => r.level === 1);
   const sections = all.filter((r) => r.level === 2);
+  const subReqs = all.filter((r) => r.level === 3);
+  const subSubReqs = all.filter((r) => r.level === 4);
+
+  // Map level-3 number → its parent section (level-2) number
+  const l3ToSection: Record<string, string> = {};
+  for (const sr of subReqs) {
+    if (sr.parentNumber) l3ToSection[sr.number] = sr.parentNumber;
+  }
+
+  // Collect all descendant titles per section for search
+  const sectionTitles: Record<string, string[]> = {};
+  for (const sr of subReqs) {
+    if (sr.parentNumber) {
+      (sectionTitles[sr.parentNumber] ??= []).push(sr.title);
+    }
+  }
+  for (const ssr of subSubReqs) {
+    if (ssr.parentNumber) {
+      const sectionNum = l3ToSection[ssr.parentNumber];
+      if (sectionNum) (sectionTitles[sectionNum] ??= []).push(ssr.title);
+    }
+  }
 
   return principals.map((principal) => ({
     number: principal.number,
@@ -34,6 +54,7 @@ async function getRequirementsTree() {
         number: s.number,
         title: s.title,
         childCount: s._count.children,
+        childTitles: sectionTitles[s.number] ?? [],
       })),
   }));
 }

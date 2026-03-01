@@ -13,7 +13,11 @@
       "Bash(/home/jcmunera/.var/app/com.visualstudio.code/config/nvm/versions/node/v20.20.0/bin/npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)",
       "Bash(env PATH=\"/home/jcmunera/.var/app/com.visualstudio.code/config/nvm/versions/node/v20.20.0/bin:/usr/bin:/bin\" /home/jcmunera/.var/app/com.visualstudio.code/config/nvm/versions/node/v20.20.0/bin/npm install next-auth@beta @auth/prisma-adapter)",
       "Bash(env PATH=\"/home/jcmunera/.var/app/com.visualstudio.code/config/nvm/versions/node/v20.20.0/bin:/usr/bin:/bin\" /home/jcmunera/.var/app/com.visualstudio.code/config/nvm/versions/node/v20.20.0/bin/npx prisma generate)",
-      "Bash(env PATH=\"/home/jcmunera/.var/app/com.visualstudio.code/config/nvm/versions/node/v20.20.0/bin:/usr/bin:/bin\" /home/jcmunera/.var/app/com.visualstudio.code/config/nvm/versions/node/v20.20.0/bin/npx tsc --noEmit)"
+      "Bash(env PATH=\"/home/jcmunera/.var/app/com.visualstudio.code/config/nvm/versions/node/v20.20.0/bin:/usr/bin:/bin\" /home/jcmunera/.var/app/com.visualstudio.code/config/nvm/versions/node/v20.20.0/bin/npx tsc --noEmit)",
+      "Bash(docker compose up -d)",
+      "Read(//usr/bin/**)",
+      "Bash(bash -c 'export PATH=\"\"/home/jcmunera/.var/app/com.visualstudio.code/config/nvm/versions/node/v20.20.0/bin:$PATH\"\" && cd \"\"/home/jcmunera/Documents/Biz Docs/CybersecPros/Projects/pci-dss-tool\"\" && node -e \"\":*)",
+      "Bash(sudo -u postgres psql pci_platform -c 'SELECT level, COUNT\\(*\\) as count FROM \"\"Requirement\"\" GROUP BY level ORDER BY level;')"
     ]
   }
 }

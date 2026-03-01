@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { auth } from "@/lib/mock-auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -23,13 +23,13 @@ export const metadata = { title: "Assessment Item" };
 
 const STATUS_COLORS: Record<ComplianceStatus, string> = {
   NOT_STARTED: "bg-slate-100 text-slate-600 border-slate-200",
-  IN_PROGRESS: "bg-blue-100 text-blue-700 border-blue-200",
-  EVIDENCE_COLLECTED: "bg-cyan-100 text-cyan-700 border-cyan-200",
-  UNDER_REVIEW: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  IN_PROGRESS: "bg-slate-100 text-slate-600 border-slate-200",
+  EVIDENCE_COLLECTED: "bg-slate-100 text-slate-600 border-slate-200",
+  UNDER_REVIEW: "bg-slate-100 text-slate-600 border-slate-200",
   COMPLIANT: "bg-green-100 text-green-700 border-green-200",
   NON_COMPLIANT: "bg-red-100 text-red-700 border-red-200",
   NOT_APPLICABLE: "bg-slate-100 text-slate-500 border-slate-200",
-  COMPENSATING_CONTROL: "bg-purple-100 text-purple-700 border-purple-200",
+  COMPENSATING_CONTROL: "bg-slate-100 text-slate-600 border-slate-200",
 };
 
 const STATUS_LABELS: Record<ComplianceStatus, string> = {
@@ -335,7 +335,7 @@ export default async function AssessmentItemPage({
                     href={item.serviceNow.ticketUrl ?? "#"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-blue-600 hover:underline font-medium"
+                    className="inline-flex items-center gap-1 text-slate-700 hover:underline font-medium"
                   >
                     {item.serviceNow.ticketNumber}
                     <ExternalLink className="h-3 w-3" />
@@ -384,7 +384,7 @@ export default async function AssessmentItemPage({
                 <Button
                   type="submit"
                   size="sm"
-                  className="bg-orange-600 hover:bg-orange-700 text-white shrink-0"
+                  className="bg-slate-700 hover:bg-slate-800 text-white shrink-0"
                 >
                   Create Incident
                 </Button>
@@ -439,7 +439,7 @@ export default async function AssessmentItemPage({
                     href={ev.filePath}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                    className="text-xs text-slate-700 hover:underline flex items-center gap-1"
                   >
                     View <ExternalLink className="h-3 w-3" />
                   </a>
@@ -514,7 +514,7 @@ export default async function AssessmentItemPage({
                         className={cn(
                           "text-xs",
                           log.sourceSystem === "servicenow"
-                            ? "bg-blue-50 text-blue-600 border-blue-200"
+                            ? "bg-slate-100 text-slate-600 border-slate-200"
                             : "bg-slate-100 text-slate-500 border-slate-200"
                         )}
                       >

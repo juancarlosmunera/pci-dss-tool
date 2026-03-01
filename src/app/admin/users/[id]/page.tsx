@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { auth } from "@/lib/mock-auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PlatformRole } from "@prisma/client";
-import { ArrowLeft, UserCircle, ShieldCheck, Trash2 } from "lucide-react";
+import { ArrowLeft, UserCircle, ShieldCheck, Trash2, KeyRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   addDomainAssignment,
   removeDomainAssignment,
   toggleUserActive,
+  setLocalPassword,
+  removeLocalPassword,
 } from "./actions";
 
 export const metadata = { title: "Admin — User Detail" };
@@ -34,7 +36,7 @@ const ASSIGNABLE_ROLES: PlatformRole[] = [
 
 const ROLE_COLORS: Record<PlatformRole, string> = {
   ADMIN: "bg-red-100 text-red-700 border-red-200",
-  CONTROL_OWNER: "bg-blue-100 text-blue-700 border-blue-200",
+  CONTROL_OWNER: "bg-slate-100 text-slate-600 border-slate-200",
   OPERATOR: "bg-green-100 text-green-700 border-green-200",
   VIEWER: "bg-slate-100 text-slate-600 border-slate-200",
 };
@@ -47,6 +49,7 @@ async function getUser(id: string) {
         orderBy: { createdAt: "asc" },
       },
     },
+    // passwordHash is fetched but never sent to the client (server component)
   });
 }
 
@@ -223,6 +226,66 @@ export default async function AdminUserDetailPage({
                 ))}
               </tbody>
             </table>
+          )}
+        </CardContent>
+      </Card>
+
+      <Separator className="my-6" />
+
+      {/* Local Account Password */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-base font-semibold text-slate-700 flex items-center gap-2">
+            <KeyRound className="h-4 w-4" />
+            Local Login
+            {user.passwordHash && (
+              <span className="ml-2 text-xs font-normal bg-amber-100 text-amber-700 border border-amber-200 rounded px-2 py-0.5">
+                Local account enabled
+              </span>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-slate-500">
+            {user.passwordHash
+              ? "This user can log in with email and password in addition to Microsoft SSO."
+              : "Set a password to allow this user to log in locally (without Microsoft SSO)."}
+          </p>
+          <form
+            action={async (formData: FormData) => {
+              "use server";
+              await setLocalPassword(user.id, formData);
+            }}
+            className="flex gap-3 items-end"
+          >
+            <div className="flex-1">
+              <label className="text-xs font-medium text-slate-600 mb-1 block">
+                {user.passwordHash ? "New Password" : "Set Password"}
+              </label>
+              <input
+                type="password"
+                name="password"
+                required
+                minLength={8}
+                placeholder="Minimum 8 characters"
+                className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </div>
+            <Button type="submit" variant="outline" size="sm">
+              {user.passwordHash ? "Reset Password" : "Set Password"}
+            </Button>
+          </form>
+          {user.passwordHash && (
+            <form
+              action={async () => {
+                "use server";
+                await removeLocalPassword(user.id);
+              }}
+            >
+              <Button type="submit" variant="ghost" size="sm" className="text-red-600 hover:text-red-800 hover:bg-red-50 text-xs">
+                Remove local password (SSO only)
+              </Button>
+            </form>
           )}
         </CardContent>
       </Card>

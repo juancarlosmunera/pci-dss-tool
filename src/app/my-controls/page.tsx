@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { auth } from "@/lib/mock-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -12,13 +12,13 @@ export const metadata = { title: "My Controls" };
 
 const STATUS_COLORS: Record<ComplianceStatus, string> = {
   NOT_STARTED: "bg-slate-100 text-slate-600 border-slate-200",
-  IN_PROGRESS: "bg-blue-100 text-blue-700 border-blue-200",
-  EVIDENCE_COLLECTED: "bg-cyan-100 text-cyan-700 border-cyan-200",
-  UNDER_REVIEW: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  IN_PROGRESS: "bg-slate-100 text-slate-600 border-slate-200",
+  EVIDENCE_COLLECTED: "bg-slate-100 text-slate-600 border-slate-200",
+  UNDER_REVIEW: "bg-slate-100 text-slate-600 border-slate-200",
   COMPLIANT: "bg-green-100 text-green-700 border-green-200",
   NON_COMPLIANT: "bg-red-100 text-red-700 border-red-200",
   NOT_APPLICABLE: "bg-slate-100 text-slate-500 border-slate-200",
-  COMPENSATING_CONTROL: "bg-purple-100 text-purple-700 border-purple-200",
+  COMPENSATING_CONTROL: "bg-slate-100 text-slate-600 border-slate-200",
 };
 
 const STATUS_LABELS: Record<ComplianceStatus, string> = {
@@ -34,13 +34,13 @@ const STATUS_LABELS: Record<ComplianceStatus, string> = {
 
 const STATUS_DOT_COLORS: Record<ComplianceStatus, string> = {
   NOT_STARTED: "bg-slate-300",
-  IN_PROGRESS: "bg-blue-400",
+  IN_PROGRESS: "bg-slate-400",
   EVIDENCE_COLLECTED: "bg-cyan-400",
-  UNDER_REVIEW: "bg-yellow-400",
-  COMPLIANT: "bg-green-500",
+  UNDER_REVIEW: "bg-slate-400",
+  COMPLIANT: "bg-slate-400",
   NON_COMPLIANT: "bg-red-500",
   NOT_APPLICABLE: "bg-slate-300",
-  COMPENSATING_CONTROL: "bg-purple-400",
+  COMPENSATING_CONTROL: "bg-slate-400",
 };
 
 const NEEDS_ATTENTION: ComplianceStatus[] = [
@@ -134,7 +134,7 @@ export default async function MyControlsPage() {
               Showing items from{" "}
               <Link
                 href={`/assessments/${assessment.id}`}
-                className="text-blue-600 hover:underline"
+                className="text-slate-700 hover:underline"
               >
                 {assessment.name}
               </Link>
@@ -309,7 +309,7 @@ export default async function MyControlsPage() {
                               href={`/assessments/${assessment.id}/items/${item.id}`}
                             >
                               <Badge
-                                className="text-xs cursor-pointer bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+                                className="text-xs cursor-pointer bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
                               >
                                 Review <ChevronRight className="h-3 w-3 inline" />
                               </Badge>

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { auth } from "@/lib/mock-auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -21,8 +21,8 @@ const PCI_DOMAINS = [
 
 const ASSESSMENT_STATUS_COLORS: Record<AssessmentStatus, string> = {
   NOT_STARTED: "bg-slate-100 text-slate-600 border-slate-200",
-  IN_PROGRESS: "bg-blue-100 text-blue-700 border-blue-200",
-  UNDER_REVIEW: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  IN_PROGRESS: "bg-slate-100 text-slate-600 border-slate-200",
+  UNDER_REVIEW: "bg-slate-100 text-slate-600 border-slate-200",
   COMPLETED: "bg-green-100 text-green-700 border-green-200",
   ARCHIVED: "bg-slate-100 text-slate-500 border-slate-200",
 };
@@ -182,7 +182,7 @@ export default async function AssessmentDetailPage({
         <CardContent>
           <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-green-500 rounded-full transition-all"
+              className="h-full bg-slate-400 rounded-full transition-all"
               style={{ width: `${overallPct}%` }}
             />
           </div>
@@ -226,7 +226,7 @@ export default async function AssessmentDetailPage({
                     </div>
                     <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-green-500 rounded-full"
+                        className="h-full bg-slate-400 rounded-full"
                         style={{ width: `${stats.pct}%` }}
                       />
                     </div>
@@ -235,7 +235,7 @@ export default async function AssessmentDetailPage({
                   {/* Status breakdown */}
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                     <div className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-green-500" />
+                      <span className="h-2 w-2 rounded-full bg-slate-400" />
                       <span className="text-slate-600">
                         Compliant:{" "}
                         <strong>{stats.compliant}</strong>
@@ -249,7 +249,7 @@ export default async function AssessmentDetailPage({
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-blue-400" />
+                      <span className="h-2 w-2 rounded-full bg-slate-400" />
                       <span className="text-slate-600">
                         In Progress:{" "}
                         <strong>{stats.inProgress}</strong>

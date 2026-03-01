@@ -1,8 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, PlatformRole } from "@prisma/client";
 import {
   requirements,
   testingProcedures,
 } from "./data/pci-dss-v4.0.1-seed";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -72,6 +73,30 @@ async function main() {
     }
   }
   console.log(`✅ Seeded ${testingProcedures.length} testing procedures`);
+
+  // Create initial local admin from env vars (if set)
+  const adminEmail = process.env.INITIAL_ADMIN_EMAIL;
+  const adminPassword = process.env.INITIAL_ADMIN_PASSWORD;
+  if (adminEmail && adminPassword) {
+    const passwordHash = await bcrypt.hash(adminPassword, 12);
+    await prisma.user.upsert({
+      where: { email: adminEmail },
+      create: {
+        email: adminEmail,
+        name: "Local Admin",
+        passwordHash,
+        platformRoles: [PlatformRole.ADMIN],
+        isActive: true,
+      },
+      update: {
+        passwordHash,
+        platformRoles: [PlatformRole.ADMIN],
+        isActive: true,
+      },
+    });
+    console.log(`✅ Local admin created: ${adminEmail}`);
+  }
+
   console.log("🎉 Seed complete!");
 }
 

@@ -25,6 +25,7 @@ model User {
   // Roles are sourced from the Azure AD App Roles claim in the JWT at each login.
   // Updated by SCIM provisioning and by the signIn callback.
   platformRoles PlatformRole[]
+  passwordHash  String?        // set only for local admin accounts; null for SSO-only users
   isActive      Boolean        @default(true)
   lastLoginAt   DateTime?
   createdAt     DateTime       @default(now())

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { auth } from "@/lib/mock-auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -12,13 +12,13 @@ export const metadata = { title: "Domain Assessment" };
 
 const STATUS_COLORS: Record<ComplianceStatus, string> = {
   NOT_STARTED: "bg-slate-100 text-slate-600 border-slate-200",
-  IN_PROGRESS: "bg-blue-100 text-blue-700 border-blue-200",
-  EVIDENCE_COLLECTED: "bg-cyan-100 text-cyan-700 border-cyan-200",
-  UNDER_REVIEW: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  IN_PROGRESS: "bg-slate-100 text-slate-600 border-slate-200",
+  EVIDENCE_COLLECTED: "bg-slate-100 text-slate-600 border-slate-200",
+  UNDER_REVIEW: "bg-slate-100 text-slate-600 border-slate-200",
   COMPLIANT: "bg-green-100 text-green-700 border-green-200",
   NON_COMPLIANT: "bg-red-100 text-red-700 border-red-200",
   NOT_APPLICABLE: "bg-slate-100 text-slate-500 border-slate-200",
-  COMPENSATING_CONTROL: "bg-purple-100 text-purple-700 border-purple-200",
+  COMPENSATING_CONTROL: "bg-slate-100 text-slate-600 border-slate-200",
 };
 
 const STATUS_LABELS: Record<ComplianceStatus, string> = {
@@ -145,7 +145,7 @@ export default async function DomainAssessmentPage({
       <div className="mb-8">
         <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
           <div
-            className="h-full bg-green-500 rounded-full transition-all"
+            className="h-full bg-slate-400 rounded-full transition-all"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -208,7 +208,7 @@ export default async function DomainAssessmentPage({
                                   <td className="px-4 py-3 font-mono text-xs text-slate-600">
                                     <Link
                                       href={`/assessments/${id}/items/${item.id}`}
-                                      className="hover:text-blue-600 hover:underline"
+                                      className="hover:text-slate-700 hover:underline"
                                     >
                                       {item.requirement.number}
                                     </Link>
@@ -216,7 +216,7 @@ export default async function DomainAssessmentPage({
                                   <td className="px-4 py-3">
                                     <Link
                                       href={`/assessments/${id}/items/${item.id}`}
-                                      className="text-slate-900 hover:text-blue-600 line-clamp-2"
+                                      className="text-slate-900 hover:text-slate-900 line-clamp-2"
                                     >
                                       {item.requirement.title}
                                     </Link>
@@ -244,7 +244,7 @@ export default async function DomainAssessmentPage({
                                         }
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                                        className="inline-flex items-center gap-1 text-xs text-slate-700 hover:underline"
                                       >
                                         {item.serviceNow.ticketNumber}
                                         <ExternalLink className="h-3 w-3" />
