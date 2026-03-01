@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { updateItemStatus, updateItemAssignees } from "./actions";
+import { FormattedText } from "@/components/formatted-text";
 
 export const metadata = { title: "Assessment Item" };
 
@@ -119,9 +120,10 @@ export default async function AssessmentItemPage({
             <p className="text-xs font-mono text-slate-500 mb-1">
               Requirement {item.requirement.number}
             </p>
-            <h1 className="text-xl font-bold text-slate-900">
-              {item.requirement.title}
-            </h1>
+            <FormattedText
+              text={item.requirement.title}
+              className="text-xl font-bold text-slate-900"
+            />
             <p className="text-sm text-slate-500 mt-1">
               {item.requirement.domain}
             </p>
@@ -143,9 +145,10 @@ export default async function AssessmentItemPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
-              {item.requirement.requirementText}
-            </p>
+            <FormattedText
+              text={item.requirement.requirementText}
+              className="text-sm text-slate-700 leading-relaxed"
+            />
 
             {item.requirement.testingProcedures.length > 0 && (
               <>
@@ -162,7 +165,7 @@ export default async function AssessmentItemPage({
                       <span className="font-mono text-slate-400 shrink-0">
                         {tp.procedureId}
                       </span>
-                      <span>{tp.text}</span>
+                      <FormattedText text={tp.text} className="text-xs text-slate-600" />
                     </li>
                   ))}
                 </ul>

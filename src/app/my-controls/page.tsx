@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ComplianceStatus } from "@prisma/client";
 import { ShieldCheck, AlertTriangle, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FormattedText } from "@/components/formatted-text";
 
 export const metadata = { title: "My Controls" };
 
@@ -285,9 +286,7 @@ export default async function MyControlsPage() {
                             {item.requirement.number}
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-slate-900 line-clamp-2">
-                              {item.requirement.title}
-                            </p>
+                            <FormattedText text={item.requirement.title} className="text-sm text-slate-900" />
                           </td>
                           <td className="px-4 py-3 text-xs text-slate-500">
                             <span className="line-clamp-1">

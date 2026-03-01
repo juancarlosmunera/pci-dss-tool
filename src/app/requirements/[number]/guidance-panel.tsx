@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FormattedText } from "@/components/formatted-text";
 
 interface GuidancePanelProps {
   label: string;
@@ -39,9 +40,7 @@ export function GuidancePanel({
       </button>
       {isOpen && (
         <div className="px-4 py-3 border-t border-slate-200 bg-white">
-          <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
-            {content}
-          </p>
+          <FormattedText text={content} />
         </div>
       )}
     </div>

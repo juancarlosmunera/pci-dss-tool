@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ComplianceStatus } from "@prisma/client";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FormattedText } from "@/components/formatted-text";
 
 export const metadata = { title: "Domain Assessment" };
 
@@ -216,9 +217,9 @@ export default async function DomainAssessmentPage({
                                   <td className="px-4 py-3">
                                     <Link
                                       href={`/assessments/${id}/items/${item.id}`}
-                                      className="text-slate-900 hover:text-slate-900 line-clamp-2"
+                                      className="text-slate-900 hover:text-slate-900"
                                     >
-                                      {item.requirement.title}
+                                      <FormattedText text={item.requirement.title} className="text-sm" />
                                     </Link>
                                   </td>
                                   <td className="px-4 py-3">

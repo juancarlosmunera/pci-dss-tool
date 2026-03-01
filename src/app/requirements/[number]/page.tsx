@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { GuidancePanel } from "./guidance-panel";
 import { ChevronRight, FlaskConical, BookMarked } from "lucide-react";
+import { FormattedText } from "@/components/formatted-text";
 
 interface PageProps {
   params: Promise<{ number: string }>;
@@ -94,13 +95,12 @@ function SubRequirementBlock({ req, depth = 0 }: { req: SubReq; depth?: number }
           <span className="text-sm font-bold text-slate-500 flex-shrink-0 font-mono">
             {req.number}
           </span>
-          <p
-            className={`text-sm leading-relaxed text-slate-800 whitespace-pre-wrap ${
+          <FormattedText
+            text={text}
+            className={`text-sm leading-relaxed text-slate-800 ${
               depth === 0 ? "font-semibold" : "font-normal"
             }`}
-          >
-            {text}
-          </p>
+          />
         </div>
 
         {req.applicabilityNotes && (
@@ -133,9 +133,10 @@ function SubRequirementBlock({ req, depth = 0 }: { req: SubReq; depth?: number }
                 <span className="text-xs font-bold text-slate-700 flex-shrink-0 font-mono mt-0.5">
                   {tp.procedureId}
                 </span>
-                <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">
-                  {tp.text}
-                </p>
+                <FormattedText
+                  text={tp.text}
+                  className="text-xs text-slate-700 leading-relaxed"
+                />
               </div>
             ))}
           </div>
@@ -249,9 +250,10 @@ export default async function RequirementDetailPage({ params }: PageProps) {
           <span className="text-xs font-bold text-slate-400 font-mono">
             {req.number}
           </span>
-          <h1 className="text-xl font-bold text-slate-900 leading-snug">
-            {req.title}
-          </h1>
+          <FormattedText
+            text={req.title}
+            className="text-xl font-bold text-slate-900 leading-snug"
+          />
         </div>
 
         {/* Section-level guidance if any */}
